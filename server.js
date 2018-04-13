@@ -1,40 +1,74 @@
-'use strict';
+"use strict";
 
-const Hapi = require('hapi');
+const Hapi = require("hapi");
+const Inert = require("inert");
+const Path = require("path");
 
 const server = Hapi.server({
-    port: 3000,
-    host: 'localhost'
+  port: 3000,
+  host: "localhost"
 });
 
-server.route({
-    method: 'GET',
-    path: '/',
-    handler: (request, h) => {
+server.ext("onRequest", (request, h) => {
+  console.log(`Request url on hapi server :: ${request.path}`);
+  return h.continue;
+});
 
-        return 'Hello, world!';
+const ServerInit = async () => {
+  await server.register(require("inert"));
+
+  server.route({
+    method: "GET",
+    path: "/",
+    handler: {
+      file: "templates/index.html"
     }
-});
+  });
 
-server.route({
-    method: 'GET',
-    path: '/{name}',
-    handler: (request, h) => {
-
-        return 'Hello, ' + encodeURIComponent(request.params.name) + '!';
+  server.route({
+    method: "GET",
+    path: "/assets/{path*}",
+    handler: {
+      directory: {
+        path: "./public",
+        listing: false
+      }
     }
-});
+  });
 
-const init = async () => {
+  server.route({
+    method: "GET",
+    path: "/cards",
+    handler: function(request, h) {
+      return h.file("templates/cards.html");
+    }
+  });
 
-    await server.start();
-    console.log(`Server running at: ${server.info.uri}`);
+  server.route({
+    method: "GET",
+    path: "/cards/new",
+    handler: function(request, h) {
+      return h.file("templates/new.html");
+    }
+  });
+
+  server.route({
+    method: "POST",
+    path: "/cards/new",
+    handler: function(request, h) {
+      // TODO: bussiness logic
+      return h.redirect("/cards");
+    }
+  });
+
+  await server.start();
+
+  console.log("Server running at:", server.info.uri);
 };
 
-process.on('unhandledRejection', (err) => {
-
-    console.log(err);
-    process.exit(1);
+process.on("unhandledRejection", err => {
+  console.log(err);
+  process.exit(1);
 });
 
-init();
+ServerInit();

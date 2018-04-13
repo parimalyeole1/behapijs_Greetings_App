@@ -1,0 +1,23 @@
+{
+  "name": "behapijs",
+  "version": "1.0.0",
+  "description": "hapijs project",
+  "main": "index.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://parimalyeole1@bitbucket.org/parimalyeole1/behapijs.git"
+  },
+  "keywords": [
+    "hapijs",
+    "nodejs"
+  ],
+  "author": "Parimal Yeole",
+  "license": "ISC",
+  "homepage": "https://bitbucket.org/parimalyeole1/behapijs#readme",
+  "dependencies": {
+    "hapi": "^17.3.1"
+  }
+}

@@ -39,28 +39,27 @@ const ServerInit = async () => {
   server.route({
     method: "GET",
     path: "/cards",
-    handler: function(request, h) {
-      return h.file("templates/cards.html");
-    }
+    handler: cardsHandler
   });
 
   server.route({
-    method: "GET",
+    method: ["GET", "POST"],
     path: "/cards/new",
-    handler: function(request, h) {
+    handler: newCardHandler
+  });
+
+  function newCardHandler(request, h) {
+    if (request.method === "get") {
       return h.file("templates/new.html");
-    }
-  });
-
-  server.route({
-    method: "POST",
-    path: "/cards/new",
-    handler: function(request, h) {
+    } else {
       // TODO: bussiness logic
       return h.redirect("/cards");
     }
-  });
+  }
 
+  function cardsHandler(request, h) {
+    return h.file("templates/cards.html");
+  }
   await server.start();
 
   console.log("Server running at:", server.info.uri);

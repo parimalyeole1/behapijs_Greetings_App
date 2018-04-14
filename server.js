@@ -3,6 +3,9 @@
 const Hapi = require("hapi");
 const Inert = require("inert");
 const Path = require("path");
+const uuid = require("uuid");
+
+const cards = {};
 
 const server = Hapi.server({
   port: 3000,
@@ -37,22 +40,40 @@ const ServerInit = async () => {
   });
 
   server.route({
+    method: ["GET", "POST"],
+    path: "/cards/new",
+    handler: newCardHandler
+  });
+
+  server.route({
     method: "GET",
     path: "/cards",
     handler: cardsHandler
   });
 
   server.route({
-    method: ["GET", "POST"],
-    path: "/cards/new",
-    handler: newCardHandler
+    method: "DELETE",
+    path: "/cards/{id}",
+    handler: function deleteCardHandler(request, h) {
+      // TODO: improve this logic and move handle in handlers 
+      delete cards[request.params.id]
+    }
   });
+
 
   function newCardHandler(request, h) {
     if (request.method === "get") {
       return h.file("templates/new.html");
     } else {
-      // TODO: bussiness logic
+      const card = {
+        name: request.payload.name,
+        recipient_email: request.payload.recipient_email,
+        sender_name: request.payload.sender_name,
+        sender_email: request.payload.sender_email,
+        card_image: request.payload.card_image
+      }
+      saveCards(card);
+      console.log(card);
       return h.redirect("/cards");
     }
   }
@@ -60,6 +81,13 @@ const ServerInit = async () => {
   function cardsHandler(request, h) {
     return h.file("templates/cards.html");
   }
+
+  function saveCards(card) {
+    const id = uuid.v1();
+    card.id = id;
+    cards[id] = card;
+  }
+
   await server.start();
 
   console.log("Server running at:", server.info.uri);

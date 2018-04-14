@@ -20,7 +20,8 @@
   "homepage": "https://bitbucket.org/parimalyeole1/behapijs#readme",
   "dependencies": {
     "hapi": "^17.3.1",
-    "inert": "^5.1.0"
+    "inert": "^5.1.0",
+    "uuid": "^3.2.1"
   },
   "devDependencies": {
     "nodemon": "^1.17.3"

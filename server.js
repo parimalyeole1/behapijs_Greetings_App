@@ -1,7 +1,6 @@
 "use strict";
 
 const Hapi = require("hapi");
-const Inert = require("inert");
 const Path = require("path");
 const uuid = require("uuid");
 
@@ -19,6 +18,15 @@ server.ext("onRequest", (request, h) => {
 
 const ServerInit = async () => {
   await server.register(require("inert"));
+  await server.register(require('vision'));
+  
+  server.views({
+    engines: {
+      html: require('handlebars')
+    },
+    relativeTo: __dirname,
+    path: 'templates'
+  });
 
   server.route({
     method: "GET",
@@ -63,7 +71,8 @@ const ServerInit = async () => {
 
   function newCardHandler(request, h) {
     if (request.method === "get") {
-      return h.file("templates/new.html");
+      //return h.file("templates/new.html");
+      return h.view("new");
     } else {
       const card = {
         name: request.payload.name,

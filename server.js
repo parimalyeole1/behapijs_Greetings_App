@@ -12,7 +12,7 @@ const server = Hapi.server({
 });
 
 CardsStore.initialize();
-UsersStore.initialize();
+// UsersStore.initialize();
 
 server.ext("onRequest", (request, h) => {
   console.log(`ext onRequest handler running ...
@@ -36,9 +36,10 @@ const ServerInit = async () => {
     await server.register(require("inert"));
     await server.register(require('vision'));
     await server.register(require('hapi-auth-cookie'));
+    await UsersStore.initialize();
 
     server.auth.strategy("default", "cookie", {
-      password: "myPassword",
+      password: "'minimum-32-characters-password1234567890'",
       redirectTo: "/login",
       isSecure: false
     });
@@ -66,5 +67,11 @@ process.on("unhandledRejection", err => {
   console.log(err);
   process.exit(1);
 });
+process.on("uncaughtException", err => {
+  console.log(err);
+  process.exit(1);
+});
+
+
 
 ServerInit();

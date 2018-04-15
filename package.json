@@ -19,9 +19,12 @@
   "license": "ISC",
   "homepage": "https://bitbucket.org/parimalyeole1/behapijs#readme",
   "dependencies": {
+    "boom": "^7.2.0",
+    "good": "^8.1.1",
     "handlebars": "^4.0.11",
     "hapi": "^17.3.1",
     "inert": "^5.1.0",
+    "joi": "^13.1.2",
     "uuid": "^3.2.1",
     "vision": "^5.3.2"
   },

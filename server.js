@@ -4,6 +4,7 @@ const Hapi = require("hapi");
 const Path = require("path");
 
 const CardsStore = require("./libs/cardsStore");
+const UsersStore = require("./libs/usersStore");
 
 const server = Hapi.server({
   port: 3000,
@@ -11,6 +12,7 @@ const server = Hapi.server({
 });
 
 CardsStore.initialize();
+UsersStore.initialize();
 
 server.ext("onRequest", (request, h) => {
   console.log(`ext onRequest handler running ...

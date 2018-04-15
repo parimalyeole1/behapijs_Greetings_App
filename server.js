@@ -5,7 +5,6 @@ const Path = require("path");
 
 const CardsStore = require("./libs/cardsStore");
 
-
 const server = Hapi.server({
   port: 3000,
   host: "localhost"
@@ -31,18 +30,34 @@ server.ext("onPreResponse", (request, h) => {
 
 
 const ServerInit = async () => {
-  await server.register(require("inert"));
-  await server.register(require('vision'));
-  server.views({
-    engines: {
-      html: require('handlebars')
-    },
-    relativeTo: __dirname,
-    path: 'templates'
-  });
-  server.route(require("./libs/routes"));
-  await server.start();
-  console.log("Server running at:", server.info.uri);
+  try {
+    await server.register(require("inert"));
+    await server.register(require('vision'));
+    await server.register(require('hapi-auth-cookie'));
+
+    server.auth.strategy("default", "cookie", {
+      password: "myPassword",
+      redirectTo: "/login",
+      isSecure: false
+    });
+
+    server.auth.default("default");
+
+    server.views({
+      engines: {
+        html: require('handlebars')
+      },
+      relativeTo: __dirname,
+      path: 'templates'
+    });
+    server.route(require("./libs/routes"));
+    await server.start();
+    console.log("Server running at:", server.info.uri);
+
+  } catch (error) {
+
+    console.log("Error at Method ServerInit ==>", error)
+  }
 };
 
 process.on("unhandledRejection", err => {

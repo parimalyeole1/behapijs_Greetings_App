@@ -5,6 +5,9 @@ const Routes = [
         path: "/",
         handler: {
             file: "templates/index.html"
+        },
+        config: {
+            auth: false
         }
     },
     {
@@ -15,6 +18,9 @@ const Routes = [
                 path: "./public",
                 listing: false
             }
+        },
+        config: {
+            auth: false
         }
     },
     {
@@ -31,6 +37,16 @@ const Routes = [
         method: "DELETE",
         path: "/cards/{id}",
         handler: Handlers.deleteCardHandler
+    },
+    {
+        method: "GET",
+        path: "/login",
+        handler: {
+            file: "templates/login.html"
+        },
+        config: {
+            auth: false
+        }
     }
 ];
 

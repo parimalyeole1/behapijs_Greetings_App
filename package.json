@@ -20,7 +20,6 @@
   "homepage": "https://bitbucket.org/parimalyeole1/behapijs#readme",
   "dependencies": {
     "boom": "^7.2.0",
-    "good": "^8.1.1",
     "handlebars": "^4.0.11",
     "hapi": "^17.3.1",
     "inert": "^5.1.0",

@@ -3,8 +3,9 @@
 const Hapi = require("hapi");
 const Path = require("path");
 const uuid = require("uuid");
+const fs = require("fs");
 
-const cards = {};
+const cards = loadCards();
 
 const server = Hapi.server({
   port: 3000,
@@ -19,7 +20,7 @@ server.ext("onRequest", (request, h) => {
 const ServerInit = async () => {
   await server.register(require("inert"));
   await server.register(require('vision'));
-  
+
   server.views({
     engines: {
       html: require('handlebars')
@@ -63,8 +64,8 @@ const ServerInit = async () => {
     method: "DELETE",
     path: "/cards/{id}",
     handler: function deleteCardHandler(request, h) {
-      // TODO: improve this logic and move handle in handlers 
-      delete cards[request.params.id]
+      delete cards[request.params.id];
+      return h.response().code(200);
     }
   });
 
@@ -88,7 +89,7 @@ const ServerInit = async () => {
   }
 
   function cardsHandler(request, h) {
-    return h.file("templates/cards.html");
+    return h.view("cards", { cards: cards });
   }
 
   function saveCards(card) {
@@ -106,5 +107,11 @@ process.on("unhandledRejection", err => {
   console.log(err);
   process.exit(1);
 });
+
+
+function loadCards() {
+  const file = fs.readFileSync('./cards.json');
+  return JSON.parse(file.toString());
+}
 
 ServerInit();

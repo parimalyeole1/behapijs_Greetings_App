@@ -5,125 +5,182 @@ const Boom = require("boom");
 const CardsStore = require("./cardsStore");
 const UsersStore = require("./usersStore");
 
-const cards = CardsStore.cards
+const cards = CardsStore.cards;
 
 const cardSchema = Joi.object().keys({
-    name: Joi.string().min(3).max(50).required(),
-    recipient_email: Joi.string().email().required(),
-    sender_name: Joi.string().min(3).max(50).required(),
-    sender_email: Joi.string().email().required(),
-    card_image: Joi.string().regex(/.+\.(jpg|bmp|png|gif)\b/).required()
+  name: Joi.string()
+    .min(3)
+    .max(50)
+    .required(),
+  recipient_email: Joi.string()
+    .email()
+    .required(),
+  sender_name: Joi.string()
+    .min(3)
+    .max(50)
+    .required(),
+  sender_email: Joi.string()
+    .email()
+    .required(),
+  card_image: Joi.string()
+    .regex(/.+\.(jpg|bmp|png|gif)\b/)
+    .required()
 });
 
 const loginSchema = Joi.object().keys({
-    email: Joi.string().email().required(),
-    password: Joi.string().max(32).required()
+  email: Joi.string()
+    .email()
+    .required(),
+  password: Joi.string()
+    .max(32)
+    .required()
 });
 
 const registerSchema = Joi.object().keys({
-    name: Joi.string().max(50).required(),
-    email: Joi.string().email().required(),
-    password: Joi.string().max(32).required()
+  name: Joi.string()
+    .max(50)
+    .required(),
+  email: Joi.string()
+    .email()
+    .required(),
+  password: Joi.string()
+    .max(32)
+    .required()
 });
 
-
-const Handlers = {}
+const Handlers = {};
 
 Handlers.deleteCardHandler = (request, h) => {
-    delete cards[request.params.id];
-    return h.response().code(200);
-}
+  delete cards[request.params.id];
+  return h.response().code(200);
+};
 
 Handlers.newCardHandler = (request, h) => {
-    if (request.method === "get") {
-        //return h.file("templates/new.html");
-        return h.view("new", { card_images: loadImages() });
-    } else {
-        return Joi.validate(request.payload, cardSchema, function (err, val) {
-            if (err) {
-                return Boom.badRequest(err.details[0].message)
-            }
-            var card = {
-                name: val.name,
-                recipient_email: val.recipient_email,
-                sender_name: val.sender_name,
-                sender_email: val.sender_email,
-                card_image: val.card_image
-            };
-            saveCard(card);
-            return h.redirect('/cards');
-        });
-    }
-}
+  if (request.method === "get") {
+    //return h.file("templates/new.html");
+    return h.view("new", { card_images: loadImages() });
+  } else {
+    return Joi.validate(request.payload, cardSchema, function(err, val) {
+      if (err) {
+        return Boom.badRequest(err.details[0].message);
+      }
+      var card = {
+        name: val.name,
+        recipient_email: val.recipient_email,
+        sender_name: val.sender_name,
+        sender_email: val.sender_email,
+        card_image: val.card_image
+      };
+      saveCard(card);
+      return h.redirect("/cards");
+    });
+  }
+};
 
 Handlers.cardsHandler = (request, h) => {
-    return h.view("cards", { cards: getCards(request.auth.credentials.email) });
-}
-
-Handlers.loginHandler = function (request, h) {
-    const joiResult = Joi.validate(request.payload, loginSchema);
-    if (joiResult.error) {
-        return Boom.unauthorized('Credentials did not validate');
-    } else {
-        return UsersStore.validateUser(joiResult.value.email, joiResult.value.password)
-            .then(function (user) {
-                request.cookieAuth.set(user);
-                return h.redirect('/cards');
-            }).catch((err) => {
-                return h.response(err);
-            })
-    }
+  return h.view("cards", { cards: getCards(request.auth.credentials.email) });
 };
 
-Handlers.logoutHandler = function (request, h) {
-    request.cookieAuth.clear();
-    return h.redirect('/');
+Handlers.loginHandler = function(request, h) {
+  const joiResult = Joi.validate(request.payload, loginSchema);
+  if (joiResult.error) {
+    return Boom.unauthorized("Credentials did not validate");
+  } else {
+    return UsersStore.validateUser(
+      joiResult.value.email,
+      joiResult.value.password
+    )
+      .then(function(user) {
+        request.cookieAuth.set(user);
+        return h.redirect("/cards");
+      })
+      .catch(err => {
+        return h.response(err);
+      });
+  }
 };
 
-Handlers.registerHandler = function (request, h) {
-
-    const joiResult = Joi.validate(request.payload, registerSchema);
-    if (joiResult.error) {
-        return Boom.unauthorized('Credentials did not validate');
-    } else {
-        return UsersStore
-            .createUser(joiResult.value.name, joiResult.value.email, joiResult.value.password)
-            .then(function (user) {
-                return h.redirect('/cards');
-            }).catch((err) => {
-                return Boom.badRequest();
-            });
-    }
+Handlers.logoutHandler = function(request, h) {
+  request.cookieAuth.clear();
+  return h.redirect("/");
 };
 
-Handlers.uploadHandler = function (request, h) {
-    const image = request.payload.upload_image;
-    if(image.byte){
-        fs.linkSync(image.path,`public/images/cards/${image.filename}`);
-        fs.unlinkSync(image.path);
-    }
-    h.redirect("/cards")
-}
+Handlers.registerHandler = function(request, h) {
+  const joiResult = Joi.validate(request.payload, registerSchema);
+  if (joiResult.error) {
+    return Boom.unauthorized("Credentials did not validate");
+  } else {
+    return UsersStore.createUser(
+      joiResult.value.name,
+      joiResult.value.email,
+      joiResult.value.password
+    )
+      .then(function(user) {
+        return h.redirect("/cards");
+      })
+      .catch(err => {
+        return Boom.badRequest();
+      });
+  }
+};
+
+Handlers.uploadHandler = function(request, h) {
+  const image = request.payload.upload_image;
+  if (image.bytes) {
+    return fsLinked(image.path, `public/images/cards/${image.filename}`)
+      .then(result => {
+        if (result) return fsUnLinked(image.path);
+      })
+      .then(result => {
+        if (result) return h.redirect("/cards");
+      })
+      .catch(err => {
+        console.log(
+          `error while uploading file${JSON.stringify(err, null, 2)}`
+        );
+        h.response(Boom.expectationFailed("Upload file failed"));
+      });
+  }
+  return null;
+};
 
 // private functin
+function fsLinked(existingPath, newPath) {
+  return new Promise((resolve, reject) => {
+    fs.link(existingPath, newPath, function(err) {
+      if (err) return reject(err);
+      resolve(true);
+    });
+  });
+}
+
+function fsUnLinked(existingPath) {
+  return new Promise((resolve, reject) => {
+    fs.unlink(existingPath, function(err) {
+      if (err) return reject(err);
+      resolve(true);
+    });
+  });
+}
+
 function saveCard(card) {
-    const id = uuid.v1();
-    card.id = id;
-    cards[id] = card;
+  const id = uuid.v1();
+  card.id = id;
+  cards[id] = card;
 }
 
 function getCards(email) {
-    const collectCards = [];
-    for (let key in cards) {
-        if (cards[key].sender_email === email) {
-            collectCards.push(cards[key]);
-        }
+  const collectCards = [];
+  for (let key in cards) {
+    if (cards[key].sender_email === email) {
+      collectCards.push(cards[key]);
     }
-    return collectCards;
+  }
+  return collectCards;
 }
 
 function loadImages() {
-    return fs.readdirSync("./public/images/cards")
+  return fs.readdirSync("./public/images/cards");
 }
 
 module.exports = Handlers;

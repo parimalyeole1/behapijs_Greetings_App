@@ -29,13 +29,11 @@ server.ext("onPreResponse", (request, h) => {
   return h.continue;
 });
 
-
-
 const ServerInit = async () => {
   try {
     await server.register(require("inert"));
-    await server.register(require('vision'));
-    await server.register(require('hapi-auth-cookie'));
+    await server.register(require("vision"));
+    await server.register(require("hapi-auth-cookie"));
     await UsersStore.initialize();
 
     server.auth.strategy("default", "cookie", {
@@ -48,18 +46,16 @@ const ServerInit = async () => {
 
     server.views({
       engines: {
-        html: require('handlebars')
+        html: require("handlebars")
       },
       relativeTo: __dirname,
-      path: 'templates'
+      path: "templates"
     });
     server.route(require("./libs/routes"));
     await server.start();
     console.log("Server running at:", server.info.uri);
-
   } catch (error) {
-
-    console.log("Error at Method ServerInit ==>", error)
+    console.log("Error at Method ServerInit ==>", error);
   }
 };
 
@@ -71,7 +67,5 @@ process.on("uncaughtException", err => {
   console.log(err);
   process.exit(1);
 });
-
-
 
 ServerInit();

@@ -78,26 +78,25 @@ const Routes = [
         config: {
             auth: false
         }
+    },
+    {
+        path: '/upload',
+        method: 'GET',
+        handler: {
+            file: 'templates/upload.html'
+        }
+    },
+    {
+        path: '/upload',
+        method: 'POST',
+        handler: Handlers.uploadHandler,
+        config: {
+            payload: {
+                output: 'file',
+                uploads: 'public/images'
+            }
+        }
     }
-    // ,
-    // {
-    //     path: '/upload',
-    //     method: 'GET',
-    //     handler: {
-    //         file: 'templates/upload.html'
-    //     }
-    // },
-    // {
-    //     path: '/upload',
-    //     method: 'POST',
-    //     handler: Handlers.uploadHandler,
-    //     config: {
-    //         payload: {
-    //             output: 'file',
-    //             uploads: 'public/images'
-    //         }
-    //     }
-    // }
 ];
 
 module.exports = Routes;

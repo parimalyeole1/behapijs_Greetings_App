@@ -96,6 +96,15 @@ Handlers.registerHandler = function (request, h) {
     }
 };
 
+Handlers.uploadHandler = function (request, h) {
+    const image = request.payload.upload_image;
+    if(image.byte){
+        fs.linkSync(image.path,`public/images/cards/${image.filename}`);
+        fs.unlinkSync(image.path);
+    }
+    h.redirect("/cards")
+}
+
 // private functin
 function saveCard(card) {
     const id = uuid.v1();

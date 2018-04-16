@@ -39,7 +39,7 @@ const ServerInit = async () => {
     await UsersStore.initialize();
 
     server.auth.strategy("default", "cookie", {
-      password: "'minimum-32-characters-password1234567890'",
+      password: "minimum-32-characters-password1234567890",
       redirectTo: "/login",
       isSecure: false
     });
